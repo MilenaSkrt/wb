@@ -1,16 +1,37 @@
-# This is a sample Python script.
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List, Optional
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+app = FastAPI()
 
+# Модели ответов
+class Item(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+class ResponseModel(BaseModel):
+    success: bool
+    data: List[Item]
 
+class ErrorResponseModel(BaseModel):
+    success: bool
+    error: str
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+# Пример эндпоинта
+@app.get("/items/", response_model=ResponseModel)
+async def get_items():
+    items = [
+        Item(id=1, name="Item One", description="This is item one."),
+        Item(id=2, name="Item Two"),
+    ]
+    return ResponseModel(success=True, data=items)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+@app.get("/error/", response_model=ErrorResponseModel)
+async def get_error():
+    return ErrorResponseModel(success=False, error="An error occurred.")
+
+# Запуск приложения
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)

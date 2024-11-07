@@ -1,0 +1,34 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Укажите вашу основную ветку
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'  # Укажите необходимую версию Python
+
+    - name: Install dependencies
+      run: |
+        pip install pydantic fastapi uvicorn pytest pytest-html  # Установите все необходимые модули
+
+    - name: Run tests
+      run: |
+        pytest --html=report.html --self-contained-html  # Запускает тесты и генерирует отчет
+
+    - name: Upload Test Report
+      uses: actions/upload-artifact@v3  # Используйте последнюю версию
+      with:
+        name: test-report
+        path: report.html  # Загружает HTML-отчет
